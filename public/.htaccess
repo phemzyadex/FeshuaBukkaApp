@@ -1,0 +1,27 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Base directory (adjust if project folder changes)
+    RewriteBase /FastFood_MVC_Phase1_Auth/public/
+
+    # Block direct access to hidden files (.env, .htaccess)
+    RewriteRule (^|/)\. - [F]
+
+    # Allow existing files & folders
+    RewriteCond %{REQUEST_FILENAME} -f [OR]
+    RewriteCond %{REQUEST_FILENAME} -d
+    RewriteRule ^ - [L]
+
+    # Route all other requests through front controller
+    RewriteRule ^(.+)$ index.php?url=$1 [QSA,L]
+</IfModule>
+
+# # ------------------------------
+# # Security Hardening
+# # ------------------------------
+
+# # Disable directory listing
+# Options -Indexes
+
+# # Prevent PHP execution in this directory
+# php_flag engine off
