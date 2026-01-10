@@ -1,4 +1,9 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+
 class FoodController extends Controller {
 
     public function __construct() {
@@ -23,6 +28,14 @@ class FoodController extends Controller {
             // ---------- BASIC VALIDATION ----------
             if ($name === '' || $price === '') {
                 $_SESSION['food_error'] = 'Food name and price are required';
+                header('Location: /FastFood_MVC_Phase1_Auth/public/admin/foods');
+                exit;
+            }
+
+            // ---------- DUPLICATE CHECK ----------
+            $existing = $this->model('Food')->findByName($name);
+            if ($existing) {
+                $_SESSION['food_error'] = 'Food with this name already exists';
                 header('Location: /FastFood_MVC_Phase1_Auth/public/admin/foods');
                 exit;
             }
@@ -52,7 +65,15 @@ class FoodController extends Controller {
             // ---------- SAFE IMAGE UPLOAD ----------
             $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
             $imageName = uniqid('food_', true) . '.' . $ext;
-            $uploadPath = '../public/uploads/' . $imageName;
+
+            // Resolve absolute path
+            $uploadDir = realpath(__DIR__ . '/../../public/uploads');
+            if ($uploadDir === false) {
+                mkdir(__DIR__ . '/../../public/uploads', 0755, true);
+                $uploadDir = realpath(__DIR__ . '/../../public/uploads');
+            }
+
+            $uploadPath = $uploadDir . DIRECTORY_SEPARATOR . $imageName;
 
             if (!move_uploaded_file($file['tmp_name'], $uploadPath)) {
                 $_SESSION['food_error'] = 'Image upload failed';
@@ -71,6 +92,54 @@ class FoodController extends Controller {
         // GET request – show page
         $foods = $this->model('Food')->all();
         $this->view('admin/foods', compact('foods'));
+    }
+
+  // EDIT FOOD
+    public function edit($id) {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $name  = isset($_POST['name']) ? trim($_POST['name']) : '';
+            $price = isset($_POST['price']) ? trim($_POST['price']) : '';
+            $file  = isset($_FILES['image']) ? $_FILES['image'] : null;
+
+            if ($name === '' || $price === '') {
+                $_SESSION['food_error'] = 'Name and price required';
+                header('Location: /FastFood_MVC_Phase1_Auth/public/admin/foods');
+                exit;
+            }
+
+            // Prevent duplicate on edit
+            $existing = $this->model('Food')->findByName($name);
+            if ($existing && $existing['id'] != $id) {
+                $_SESSION['food_error'] = 'Another food with this name exists';
+                header('Location: /FastFood_MVC_Phase1_Auth/public/admin/foods');
+                exit;
+            }
+
+            $imageName = null;
+            if ($file && $file['error'] === UPLOAD_ERR_OK) {
+                $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+                $imageName = uniqid('food_', true) . '.' . $ext;
+
+                $uploadDir = realpath(__DIR__ . '/../../public/uploads');
+                if ($uploadDir === false) mkdir(__DIR__ . '/../../public/uploads', 0755, true);
+
+                $uploadPath = $uploadDir . DIRECTORY_SEPARATOR . $imageName;
+                move_uploaded_file($file['tmp_name'], $uploadPath);
+            }
+
+            // Update database
+            $this->model('Food')->update($id, $name, $price, $imageName);
+
+            $_SESSION['food_success'] = 'Food updated successfully';
+            header('Location: /FastFood_MVC_Phase1_Auth/public/admin/foods');
+            exit;
+        }
+    }
+    public function delete($id) {
+        $this->model('Food')->delete($id);
+        $_SESSION['food_success'] = 'Food deleted successfully';
+        header('Location: /FastFood_MVC_Phase1_Auth/public/admin/foods');
+        exit;
     }
 
     public function index() {

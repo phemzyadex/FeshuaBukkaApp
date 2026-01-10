@@ -6,13 +6,12 @@
 <?php foreach ($foods as $food): ?>
 <div class="col-md-3 mb-4">
 <div class="card shadow-sm h-100">
-<img src="/public/uploads/<?= $food['image'] ?>" class="card-img-top">
+<img src="/FastFood_MVC_Phase1_Auth/public/uploads/<?= $food['image'] ?>" class="card-img-top">
 
 <div class="card-body text-center">
 <h6><?= $food['name'] ?></h6>
-<p class="text-danger fw-bold">₦<?= $food['price'] ?></p>
-
-<a href="/cart/add/<?= $food['id'] ?>" class="btn btn-sm btn-danger">
+<p class="text-danger fw-bold">₦<?= number_format($food['price'], 2) ?></p>
+<a href="/FastFood_MVC_Phase1_Auth/public/cart/add/<?= $food['id']  ?>" class="btn btn-sm btn-danger">
 Add to Cart
 </a>
 </div>

@@ -1,26 +1,49 @@
 <?php
 class CartController extends Controller {
-     public function __construct() {
-        $this->requireLogin(); // 🔒 Protect all cart pages
-    }
-    public function add($foodId) {
-        $cartModel = $this->model('Cart');
-        $cartModel->addItem($foodId, 1); // default quantity 1
-        $item_added = true; // send to view
-        $cartItems = $cartModel->all();
-        // Call parent view method correctly
-        parent::view('user/cart', compact('cartItems','item_added'));
+
+    public function __construct() {
+        $this->requireLogin();
     }
 
-    // Fixed method signature to match parent Controller
-    public function view($view = 'user/cart', $data = []) {
-        $cart = $this->model('Cart')->all();
-        $total = $this->model('Cart')->total();
-        $data = array_merge($data, compact('cart', 'total'));
-        parent::view($view, $data);
+    // Add to cart
+    public function add($foodId) {
+        $cart = $this->model('Cart');
+        $cart->addItem($foodId, 1);
+
+        $_SESSION['cart_success'] = 'Item added to cart';
+        header('Location: /FastFood_MVC_Phase1_Auth/public/cart');
+        exit;
     }
-     public function index() {
-        header('Location: /FastFood_MVC_Phase1_Auth/public/');
-        exit();
+
+    // /cart or /cart/index
+    public function index() {
+        $cartModel = $this->model('Cart');
+
+        $cartItems = $cartModel->all();
+        $total = $cartModel->total();
+
+        $this->view('user/cart', compact('cartItems', 'total'));
     }
+    
+     // Remove item
+    public function remove($id) {
+        $this->model('Cart')->remove($id);
+        header('Location: /FastFood_MVC_Phase1_Auth/public/cart');
+        exit;
+    }
+
+    // Increase quantity
+    public function increase($id) {
+        $this->model('Cart')->increase($id);
+        header('Location: /FastFood_MVC_Phase1_Auth/public/checkout');
+        exit;
+    }
+
+    // Decrease quantity
+    public function decrease($id) {
+        $this->model('Cart')->decrease($id);
+        header('Location: /FastFood_MVC_Phase1_Auth/public/checkout');
+        exit;
+    }
+
 }

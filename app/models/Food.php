@@ -9,47 +9,76 @@ class Food {
             $config['user'],
             $config['pass']
         );
+        $this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     }
 
-        public function all() {
+    // Get all foods
+    public function all() {
         return $this->db->query("SELECT * FROM foods ORDER BY id DESC")
                         ->fetchAll(PDO::FETCH_ASSOC);
     }
-
-        public function create($data, $file) {
-        $image = time() . '_' . $file['image']['name'];
-        move_uploaded_file($file['image']['tmp_name'], "../public/assets/uploads/$image");
-
-        $stmt = $this->db->prepare(
-            "INSERT INTO foods (name, price, image) VALUES (?, ?, ?)"
-        );
-        $stmt->execute([$data['name'], $data['price'], $image]);
-    }
-
-        public function existsByName($name) {
-        $stmt = $this->db->prepare("SELECT id FROM foods WHERE name = ?");
+    // Check duplicate by name
+    public function existsByName($name) {
+        $stmt = $this->db->prepare("SELECT * FROM foods WHERE name = ?");
         $stmt->execute([$name]);
-        return $stmt->fetchColumn();
+        return $stmt->fetch(PDO::FETCH_ASSOC); // returns the row if exists, false otherwise
     }
 
-    public function update($data, $file) {
-    $sql = "UPDATE foods SET name=?, price=?";
-    $params = [$data['name'], $data['price']];
-
-    if (!empty($file['image']['name'])) {
-        $image = time().'_'.$file['image']['name'];
-        move_uploaded_file($file['image']['tmp_name'], "../public/uploads/$image");
-        $sql .= ", image=?";
-        $params[] = $image;
+    // Check duplicate by name
+    public function findByName($name) {
+        $stmt = $this->db->prepare("SELECT * FROM foods WHERE name = ?");
+        $stmt->execute([$name]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
+
+    // Add new food
+    public function create($name, $price, $file) {
+        // Handle upload
+        $image = null;
+        if ($file && $file['error'] === UPLOAD_ERR_OK) {
+            $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+            $image = uniqid('food_', true) . '.' . $ext;
+
+            $uploadDir = realpath(__DIR__ . '/../../public/uploads');
+            if ($uploadDir === false) mkdir(__DIR__ . '/../../public/uploads', 0755, true);
+            $uploadPath = $uploadDir . DIRECTORY_SEPARATOR . $image;
+
+            move_uploaded_file($file['tmp_name'], $uploadPath);
+        }
+
+        $stmt = $this->db->prepare("INSERT INTO foods (name, price, image) VALUES (?, ?, ?)");
+        $stmt->execute([$name, $price, $image]);
+    }
+
+    // Update food
+    public function update($id, $name, $price, $file = null) {
+        $sql = "UPDATE foods SET name=?, price=?";
+        $params = [$name, $price];
+
+        if ($file && $file['error'] === UPLOAD_ERR_OK) {
+            $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+            $image = uniqid('food_', true) . '.' . $ext;
+
+            $uploadDir = realpath(__DIR__ . '/../../public/uploads');
+            if ($uploadDir === false) mkdir(__DIR__ . '/../../public/uploads', 0755, true);
+            $uploadPath = $uploadDir . DIRECTORY_SEPARATOR . $image;
+
+            move_uploaded_file($file['tmp_name'], $uploadPath);
+
+            $sql .= ", image=?";
+            $params[] = $image;
+        }
+
         $sql .= " WHERE id=?";
-        $params[] = $data['id'];
+        $params[] = $id;
 
-        $this->db->prepare($sql)->execute($params);
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute($params);
     }
 
+    // Delete food
     public function delete($id) {
-        $this->db->prepare("DELETE FROM foods WHERE id=?")->execute([$id]);
+        $stmt = $this->db->prepare("DELETE FROM foods WHERE id=?");
+        $stmt->execute([$id]);
     }
-
 }

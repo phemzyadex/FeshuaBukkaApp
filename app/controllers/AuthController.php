@@ -19,34 +19,50 @@ class AuthController extends Controller {
 }
 
     public function register() {
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $name = trim($_POST['name']);
-        $email = trim($_POST['email']);
-        $password = $_POST['password'];
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-        $userModel = $this->model('User');
+            $name  = trim($_POST['name']);
+            $email = trim($_POST['email']);
+            $phone = trim($_POST['phone']);
+            $pass  = $_POST['password'];
 
-        // Check if email already exists
-        if ($userModel->exists($email)) {
-            // Email already registered
-            $error = "Email is already registered. Try logging in.";
-            $this->view('user/register', compact('error', 'name', 'email'));
-            return;
+            $userModel = $this->model('User');
+
+            // ---------- Validation ----------
+            if ($name === '' || $email === '' || $phone === '' || $pass === '') {
+                $error = "All fields are required";
+                $this->view('auth/register', compact('error', 'name', 'email', 'phone'));
+                return;
+            }
+
+            if (!preg_match('/^[0-9]{10,15}$/', $phone)) {
+                $error = "Phone number must be 10-15 digits";
+                $this->view('auth/register', compact('error', 'name', 'email', 'phone'));
+                return;
+            }
+
+            if ($userModel->existsByEmail($email)) {
+                $error = "Email already exists!";
+                $this->view('auth/register', compact('error', 'name', 'email', 'phone'));
+                return;
+            }
+
+            if ($userModel->existsByPhone($phone)) {
+                $error = "Phone number already exists!";
+                $this->view('auth/register', compact('error', 'name', 'email', 'phone'));
+                return;
+            }
+
+            // ---------- Save User ----------
+            $userModel->create($name, $email, $phone, $pass);
+            $_SESSION['register_success'] = true;
+            header('Location: /FastFood_MVC_Phase1_Auth/public/auth/register');
+            exit;
         }
 
-        // Register new user
-        $userModel->register($name, $email, $password);
-
-        // Success: redirect to login with a toast
-        $_SESSION['register_success'] = true;
-        header('Location: /FastFood_MVC_Phase1_Auth/public/auth/login');
-        exit;
-        }
-
-        // Show registration form
-        $this->view('user/register');
+        // GET request
+        $this->view('auth/register');
     }
-
      public function index() {
         header('Location: /FastFood_MVC_Phase1_Auth/public/');
         exit();

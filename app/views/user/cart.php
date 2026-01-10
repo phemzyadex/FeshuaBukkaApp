@@ -17,15 +17,30 @@
         <?php foreach($cartItems as $item): ?>
         <tr>
             <td><?= $item['name'] ?></td>
-            <td><?= $item['quantity'] ?></td>
+            <td><?= $item['qty'] ?></td>
             <td>₦<?= $item['price'] ?></td>
-            <td>₦<?= $item['price'] * $item['quantity'] ?></td>
+            <td>₦<?= $item['price'] * $item['qty'] ?></td>
             <td><a href="/FastFood_MVC_Phase1_Auth/public/cart/remove/<?= $item['id'] ?>" class="btn btn-sm btn-danger">Remove</a></td>
         </tr>
         <?php endforeach; ?>
     </tbody>
 </table>
-<a href="/FastFood_MVC_Phase1_Auth/public/order/checkout" class="btn btn-success">Place Order</a>
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-9">
+      <a href="/FastFood_MVC_Phase1_Auth/public/food/menu"
+        class="btn btn-info">
+        Continue Shopping
+      </a>
+    </div>
+    <div class="col-md-3">
+      <a href="/FastFood_MVC_Phase1_Auth/public/checkout"
+        class="btn btn-success">
+        Checkout
+      </a>
+    </div>
+  </div>
+</div>
 <?php else: ?>
 <p class="text-center">Your cart is empty.</p>
 <?php endif; ?>

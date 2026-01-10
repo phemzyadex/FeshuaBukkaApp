@@ -2,47 +2,54 @@
 class AdminController extends Controller {
 
     public function __construct() {
-        $this->requireAdmin(); // 🔒 Admin-only
-        // Make sure only admin can access
-        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] != 'admin') {
+        $this->requireAdmin();
+
+        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
             die('Access denied');
         }
     }
 
-    // Admin Dashboard
+    // =======================
+    // ADMIN DASHBOARD
+    // =======================
     public function dashboard() {
-        $adminModel = $this->model('Admin');
 
-        // Fetch stats
-        $stats = $adminModel->stats();
+        $orderModel = $this->model('Order');
+        $userModel  = $this->model('User');
 
-        // Fetch all orders
-        $orders = $adminModel->orders();
+        // ✅ Get all orders
+        $orders = $orderModel->all();
 
-        // Pass data to view
+        // ✅ Attach items to each order
+        foreach ($orders as &$order) {
+            $order['items'] = $orderModel->items($order['id']);
+        }
+
+        // ✅ Dashboard stats
+        $stats = [
+            'orders' => count($orders),
+            'sales'  => $orderModel->stats()['sales'],
+            'users'  => $userModel->count()
+        ];
+
         $this->view('admin/dashboard', compact('orders', 'stats'));
     }
 
-    // Update order status
+    // =======================
+    // UPDATE ORDER STATUS
+    // =======================
     public function updateStatus($orderId) {
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['status'])) {
-            $adminModel = $this->model('Admin');
-            $adminModel->updateOrderStatus($orderId, $_POST['status']);
+            $this->model('Admin')->updateOrderStatus($orderId, $_POST['status']);
         }
-        $this->redirect('/admin/dashboard');
+
+        header('Location: /FastFood_MVC_Phase1_Auth/public/admin/dashboard');
+        exit;
     }
 
-    // Add food page
-    public function add_food() {
-        $this->view('admin/add_food');
-    }
-
-   
-     public function index() {
-        header('Location: /FastFood_MVC_Phase1_Auth/public/');
-        exit();
-    }
-
+    // =======================
+    // FOOD MANAGEMENT
+    // =======================
     public function foods() {
         $foods = $this->model('Food')->all();
         $this->view('admin/foods', compact('foods'));
@@ -50,36 +57,40 @@ class AdminController extends Controller {
 
     public function addFood() {
 
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-        $foodModel = $this->model('Food');
-        $name  = trim($_POST['name']);
-        $price = $_POST['price'];
+            $foodModel = $this->model('Food');
+            // $name  = trim($_POST['name']);
+            // $price = trim($_POST['price']);
+            // $file  = $_FILES['image'] ?? null;
+            
+            $name  = isset($_POST['name']) ? trim($_POST['name']) : '';
+            $price = isset($_POST['price']) ? trim($_POST['price']) : '';
+            $file = isset($_FILES['image']) ? $_FILES['image'] : null;
+            
+            // ✅ Duplicate check
+            if ($foodModel->existsByName($name)) {
+                $_SESSION['food_error'] = 'Food already exists';
+                header('Location: /FastFood_MVC_Phase1_Auth/public/admin/foods');
+                exit;
+            }
 
-        // 🔴 DUPLICATE CHECK
-        if ($foodModel->existsByName($name)) {
-            $_SESSION['food_error'] = "Food already exists!";
+            // ✅ Upload image
+            $foodModel->create($name, $price, $file);
+
+            $_SESSION['food_success'] = 'Food added successfully';
             header('Location: /FastFood_MVC_Phase1_Auth/public/admin/foods');
             exit;
         }
 
-        // Upload image
-        $image = time() . '_' . $_FILES['image']['name'];
-        move_uploaded_file(
-            $_FILES['image']['tmp_name'],
-            '../public/uploads/' . $image
-        );
-
-        $foodModel->create($name, $price, $image);
-
-        $_SESSION['food_success'] = "Food added successfully!";
-        header('Location: /FastFood_MVC_Phase1_Auth/public/admin/foods');
-        exit;
-        }
-
-        $foods = $this->model('Food')->all();
-        $this->view('admin/add_food', compact('foods'));
+        $this->view('admin/add_food');
     }
 
-
+    // =======================
+    // DEFAULT REDIRECT
+    // =======================
+    public function index() {
+        header('Location: /FastFood_MVC_Phase1_Auth/public/admin/dashboard');
+        exit;
+    }
 }

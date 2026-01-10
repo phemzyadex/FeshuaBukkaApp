@@ -32,19 +32,28 @@
                 <li class="nav-item">
                     <a class="nav-link" href="/FastFood_MVC_Phase1_Auth/public/admin/dashboard">Dashboard</a>
                 </li>
+                <!-- <li class="nav-item">
+                    <a class="nav-link" href="/FastFood_MVC_Phase1_Auth/public/admin/add_food">Add Food</a>foods
+                </li> -->
                 <li class="nav-item">
-                    <a class="nav-link" href="/FastFood_MVC_Phase1_Auth/public/admin/add_food">Add Food</a>
+                    <a class="nav-link" href="/FastFood_MVC_Phase1_Auth/public/admin/foods">Add Food</a>
                 </li>
             <?php else: ?>
                 <li class="nav-item">
                     <a class="nav-link" href="/FastFood_MVC_Phase1_Auth/public/food/menu">Menu</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="/FastFood_MVC_Phase1_Auth/public/cart/view">Cart</a>
+                    <a class="nav-link" href="/FastFood_MVC_Phase1_Auth/public/cart">Cart
+                        <?php if (!empty($cartCount)): ?>
+                        <span class="badge bg-warning text-dark ms-1">
+                            <?= $cartCount ?>
+                        </span>
+                    <?php endif; ?>
+                    </a>
                 </li>
-                <li class="nav-item">
+                <!-- <li class="nav-item">
                     <a class="nav-link" href="/FastFood_MVC_Phase1_Auth/public/order/track">Track Order</a>
-                </li>
+                </li> -->
             <?php endif; ?>
 
             <li class="nav-item">

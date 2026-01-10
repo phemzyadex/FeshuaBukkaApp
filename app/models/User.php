@@ -23,4 +23,25 @@ class User {
         return $stmt->fetchColumn() > 0;
     }
 
+    // Count all users
+    public function count() {
+        $stmt = $this->db->query("SELECT COUNT(*) FROM users");
+        return (int) $stmt->fetchColumn();
+    }
+
+     // Check if phone exists
+    public function existsByPhone($phone) {
+        $stmt = $this->db->prepare("SELECT id FROM users WHERE phone=?");
+        $stmt->execute([$phone]);
+        return $stmt->fetchColumn();
+    }
+
+    // Create new user
+    public function create($name, $email, $phone, $password) {
+        $hashed = password_hash($password, PASSWORD_DEFAULT);
+        $stmt = $this->db->prepare(
+            "INSERT INTO users (name, email, phone, password, role) VALUES (?, ?, ?, ?, 'user')"
+        );
+        $stmt->execute([$name, $email, $phone, $hashed]);
+    }
 }

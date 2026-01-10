@@ -8,14 +8,25 @@
 
                 <form method="post" action="">
                     <div class="mb-2">
-                        <input type="text" name="name" class="form-control" placeholder="Full Name" value="<?= isset($name) ? htmlspecialchars($name) : '' ?>" required>
+                        <input type="text" name="name" class="form-control" placeholder="Full Name" 
+                               value="<?= isset($name) ? htmlspecialchars($name) : '' ?>" required>
                     </div>
+
                     <div class="mb-2">
-                        <input type="email" name="email" class="form-control" placeholder="Email" value="<?= isset($email) ? htmlspecialchars($email) : '' ?>" required>
+                        <input type="email" name="email" class="form-control" placeholder="Email" 
+                               value="<?= isset($email) ? htmlspecialchars($email) : '' ?>" required>
                     </div>
+
+                    <div class="mb-2">
+                        <input type="tel" name="phone" class="form-control" placeholder="Phone Number" 
+                               value="<?= isset($phone) ? htmlspecialchars($phone) : '' ?>" 
+                               pattern="[0-9]{10,15}" title="Enter a valid phone number (10-15 digits)" required>
+                    </div>
+
                     <div class="mb-2">
                         <input type="password" name="password" class="form-control" placeholder="Password" required>
                     </div>
+
                     <button class="btn btn-danger w-100 mt-2" type="submit">Register</button>
                 </form>
 
@@ -62,15 +73,13 @@ document.addEventListener('DOMContentLoaded', function () {
     // Show error toast if it exists
     var errorEl = document.getElementById('errorToast');
     if (errorEl) {
-        var toast = new bootstrap.Toast(errorEl, { delay: 3000 });
-        toast.show();
+        new bootstrap.Toast(errorEl, { delay: 3000 }).show();
     }
 
     // Show success toast if it exists and redirect
     var successEl = document.getElementById('successToast');
     if (successEl) {
-        var toast = new bootstrap.Toast(successEl, { delay: 3000 });
-        toast.show();
+        new bootstrap.Toast(successEl, { delay: 3000 }).show();
         setTimeout(function() {
             window.location.href = '/FastFood_MVC_Phase1_Auth/public/auth/login';
         }, 3000);

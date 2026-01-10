@@ -6,6 +6,9 @@ class Controller {
     }
 
     public function view($view, $data = []) {
+        // global cart count
+        $data['cartCount'] = $this->cartCount();
+
         extract($data);
         require_once '../app/views/' . $view . '.php';
     }
@@ -28,4 +31,18 @@ class Controller {
             exit();
         }
     }
+
+    protected function cartCount() {
+        if (!isset($_SESSION['cart']) || empty($_SESSION['cart'])) {
+            return 0;
+        }
+
+        $count = 0;
+        foreach ($_SESSION['cart'] as $item) {
+            $count += $item['quantity'];
+        }
+
+        return $count;
+    }
+
 }
