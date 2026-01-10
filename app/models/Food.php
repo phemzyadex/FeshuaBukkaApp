@@ -17,6 +17,13 @@ class Food {
         return $this->db->query("SELECT * FROM foods ORDER BY id DESC")
                         ->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public function allCat() {
+    $stmt = $this->db->query("SELECT * from categories ORDER BY id DESC");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+
     // Check duplicate by name
     public function existsByName($name) {
         $stmt = $this->db->prepare("SELECT * FROM foods WHERE name = ?");
@@ -32,7 +39,7 @@ class Food {
     }
 
     // Add new food
-    public function create($name, $price, $file) {
+    public function create($name, $price, $file, $categoryId) {
         // Handle upload
         $image = null;
         if ($file && $file['error'] === UPLOAD_ERR_OK) {
@@ -46,7 +53,7 @@ class Food {
             move_uploaded_file($file['tmp_name'], $uploadPath);
         }
 
-        $stmt = $this->db->prepare("INSERT INTO foods (name, price, image) VALUES (?, ?, ?)");
+        $stmt = $this->db->prepare("INSERT INTO foods (name, price, image, category_id) VALUES (?, ?, ?, ?)");
         $stmt->execute([$name, $price, $image]);
     }
 
@@ -115,5 +122,6 @@ class Food {
             ]
         ];
     }
+
 
 }

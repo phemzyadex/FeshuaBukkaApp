@@ -21,6 +21,7 @@ class FoodController extends Controller {
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
+            $categoryId = (int) $_POST['category_id'];
             $name  = isset($_POST['name']) ? trim($_POST['name']) : '';
             $price = isset($_POST['price']) ? trim($_POST['price']) : '';
             $file  = isset($_FILES['image']) ? $_FILES['image'] : null;
@@ -82,7 +83,7 @@ class FoodController extends Controller {
             }
 
             // ---------- SAVE TO DATABASE ----------
-            $this->model('Food')->create($name, $price, $imageName);
+            $this->model('Food')->create($name, $price, $imageName, $categoryId);
 
             $_SESSION['food_success'] = 'Food added successfully';
             header('Location: /FastFood_MVC_Phase1_Auth/public/admin/foods');

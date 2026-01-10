@@ -7,6 +7,9 @@
     header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
     header("Cache-Control: post-check=0, pre-check=0", false);
     header("Pragma: no-cache");
+
+    $user = isset($_SESSION['user']) ? $_SESSION['user'] : null;
+    $isAdmin = $user && $user['role'] === 'admin';
 ?>
 
 <!DOCTYPE html>
@@ -35,20 +38,40 @@
                 <!-- <li class="nav-item">
                     <a class="nav-link" href="/FastFood_MVC_Phase1_Auth/public/admin/add_food">Add Food</a>foods
                 </li> -->
-                <li class="nav-item">
+                <!-- <li class="nav-item">
                     <a class="nav-link" href="/FastFood_MVC_Phase1_Auth/public/admin/foods">Add Food</a>
+                </li> -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle"
+                    href="#"
+                    role="button"
+                    data-bs-toggle="dropdown">
+                    Manage
+                    </a>
+
+                    <ul class="dropdown-menu">
+                        <li>
+                            <a class="dropdown-item"
+                            href="/FastFood_MVC_Phase1_Auth/public/admin/foods">
+                            Foods
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item"
+                            href="/FastFood_MVC_Phase1_Auth/public/admin/categories">
+                            Categories
+                            </a>
+                        </li>
+                    </ul>
                 </li>
+
             <?php else: ?>
                 <li class="nav-item">
                     <a class="nav-link" href="/FastFood_MVC_Phase1_Auth/public/food/menu">Menu</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="/FastFood_MVC_Phase1_Auth/public/cart">Cart
-                        <?php if (!empty($cartCount)): ?>
-                        <span class="badge bg-warning text-dark ms-1">
-                            <?= $cartCount ?>
-                        </span>
-                    <?php endif; ?>
+                        
                     </a>
                 </li>
                 <!-- <li class="nav-item">

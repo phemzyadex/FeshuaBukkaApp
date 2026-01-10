@@ -143,5 +143,26 @@ class AdminController extends Controller {
         exit;
     }
 
+    public function categories()
+    {
+        // Optional: protect admin routes
+        if (!isset($_SESSION['user']) || $_SESSION['user']['role'] !== 'admin') {
+            header('Location: /FastFood_MVC_Phase1_Auth/public/auth/login');
+            exit;
+        }
+
+        // Load Category model
+        $categoryModel = $this->model('Category');
+
+        // Fetch categories (for listing)
+        $categories = $categoryModel->getAll();
+
+        // Load view
+        $this->view('admin/categories', [
+            'categories' => $categories
+        ]);
+    }
+
+    
 
 }
