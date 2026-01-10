@@ -99,6 +99,38 @@
 
                 </tbody>
             </table>
+            <?php if (!empty($pagination)): ?>
+                <nav aria-label="Food pagination">
+                    <ul class="pagination justify-content-center mt-4">
+
+                        <!-- Previous -->
+                        <li class="page-item <?= $pagination['current'] <= 1 ? 'disabled' : '' ?>">
+                            <a class="page-link"
+                            href="?page=<?= $pagination['current'] - 1 ?>">
+                            Previous
+                            </a>
+                        </li>
+
+                        <!-- Page Numbers -->
+                        <?php for ($i = 1; $i <= $pagination['pages']; $i++): ?>
+                            <li class="page-item <?= $i === $pagination['current'] ? 'active' : '' ?>">
+                                <a class="page-link" href="?page=<?= $i ?>">
+                                    <?= $i ?>
+                                </a>
+                            </li>
+                        <?php endfor; ?>
+
+                        <!-- Next -->
+                        <li class="page-item <?= $pagination['current'] >= $pagination['pages'] ? 'disabled' : '' ?>">
+                            <a class="page-link"
+                            href="?page=<?= $pagination['current'] + 1 ?>">
+                            Next
+                            </a>
+                        </li>
+
+                    </ul>
+                </nav>
+            <?php endif; ?>
         </div>
     </div>
 

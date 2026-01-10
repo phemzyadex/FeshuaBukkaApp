@@ -39,7 +39,7 @@ class Controller {
 
         $count = 0;
         foreach ($_SESSION['cart'] as $item) {
-            $count += $item['quantity'];
+            $count += $item['qty'];
         }
 
         return $count;

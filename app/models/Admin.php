@@ -46,16 +46,7 @@ class Admin {
         ];
     }
 
-    // Generic counter (prevents repetition)
-    // private function count($table) {
-    //     try {
-    //         $stmt = $this->db->query("SELECT COUNT(*) FROM {$table}");
-    //         return (int) $stmt->fetchColumn();
-    //     } catch (PDOException $e) {
-    //         return 0; // fail safely
-    //     }
-    // }
-private function count($table) {
+ private function count($table) {
         try {
             return (int)$this->db->query("SELECT COUNT(*) FROM {$table}")->fetchColumn();
         } catch (PDOException $e) {

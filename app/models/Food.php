@@ -81,4 +81,39 @@ class Food {
         $stmt = $this->db->prepare("DELETE FROM foods WHERE id=?");
         $stmt->execute([$id]);
     }
+
+    public function findById($id) {
+        $stmt = $this->db->prepare("SELECT * FROM foods WHERE id = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
+        public function paginate($page, $limit)
+    {
+        $offset = ($page - 1) * $limit;
+
+        $total = $this->db
+            ->query("SELECT COUNT(*) FROM foods")
+            ->fetchColumn();
+
+        $stmt = $this->db->prepare("
+            SELECT *
+            FROM foods
+            ORDER BY id DESC
+            LIMIT :limit OFFSET :offset
+        ");
+
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return [
+            'data' => $stmt->fetchAll(PDO::FETCH_ASSOC),
+            'pagination' => [
+                'current' => $page,
+                'pages'   => ceil($total / $limit)
+            ]
+        ];
+    }
+
 }

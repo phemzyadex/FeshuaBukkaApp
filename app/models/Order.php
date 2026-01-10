@@ -15,7 +15,8 @@ class Order {
     // Create a new order with cart items
     public function create($userId, $cart, $total) {
         $stmt = $this->db->prepare(
-            "INSERT INTO orders (user_id, total, status, payment_status, created_at) VALUES (?, ?, 'Pending', 'unpaid', NOW())"
+            "INSERT INTO orders (user_id, total, status, payment_status, created_at) 
+             VALUES (?, ?, 'Pending', 'unpaid', NOW())"
         );
         $stmt->execute([$userId, $total]);
 
@@ -57,7 +58,12 @@ class Order {
 
     // Fetch all orders for admin dashboard
     public function getAllOrders() {
-        $stmt = $this->db->query("SELECT o.*, u.name FROM orders o JOIN users u ON o.user_id = u.id ORDER BY o.created_at DESC");
+        $stmt = $this->db->query("
+            SELECT o.*, u.name 
+            FROM orders o 
+            JOIN users u ON o.user_id = u.id 
+            ORDER BY o.created_at DESC
+        ");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
@@ -70,9 +76,10 @@ class Order {
         return $total;
     }
 
+    // Get items by order
     public function itemsByOrder($orderId) {
         $stmt = $this->db->prepare("
-            SELECT oi.qty, oi.price, f.name
+            SELECT oi.quantity AS qty, oi.price, f.name
             FROM order_items oi
             JOIN foods f ON f.id = oi.food_id
             WHERE oi.order_id = ?
@@ -81,7 +88,7 @@ class Order {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-        // ✅ Get all orders (ADMIN)
+    // Get all orders (ADMIN)
     public function all() {
         $stmt = $this->db->query("
             SELECT o.*, u.name
@@ -92,7 +99,7 @@ class Order {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // ✅ Get items for a single order
+    // Get items for a single order
     public function items($orderId) {
         $stmt = $this->db->prepare("
             SELECT f.name, oi.quantity AS qty, oi.price
@@ -104,11 +111,79 @@ class Order {
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // ✅ Dashboard stats
+    // Dashboard stats
     public function stats() {
         return [
             'orders' => $this->db->query("SELECT COUNT(*) FROM orders")->fetchColumn(),
             'sales'  => $this->db->query("SELECT IFNULL(SUM(total),0) FROM orders")->fetchColumn()
         ];
     }
+
+    // Count orders today
+    public function countToday() {
+        $stmt = $this->db->query("
+            SELECT COUNT(*) FROM orders
+            WHERE DATE(created_at) = CURDATE()
+        ");
+        return (int) $stmt->fetchColumn();
+    }
+
+    // Sum of orders today
+    public function sumToday() {
+        $stmt = $this->db->query("
+            SELECT IFNULL(SUM(total),0) FROM orders
+            WHERE DATE(created_at) = CURDATE()
+        ");
+        return $stmt->fetchColumn();
+    }
+
+    // Sum of orders this month
+    public function sumThisMonth() {
+        $stmt = $this->db->query("
+            SELECT IFNULL(SUM(total),0) FROM orders
+            WHERE MONTH(created_at)=MONTH(CURDATE())
+            AND YEAR(created_at)=YEAR(CURDATE())
+        ");
+        return $stmt->fetchColumn();
+    }
+
+    // Get all orders with user info (ADMIN)
+    public function allWithUsers() {
+        $stmt = $this->db->query("
+            SELECT o.*, u.name
+            FROM orders o
+            JOIN users u ON u.id = o.user_id
+            ORDER BY o.id DESC
+        ");
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function paginate($page, $limit)
+    {
+        $offset = ($page - 1) * $limit;
+
+        $total = $this->db->query("SELECT COUNT(*) FROM orders")
+                        ->fetchColumn();
+
+        $stmt = $this->db->prepare("
+            SELECT orders.*, users.name
+            FROM orders
+            JOIN users ON users.id = orders.user_id
+            ORDER BY orders.created_at DESC
+            LIMIT :limit OFFSET :offset
+        ");
+
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return [
+            'data' => $stmt->fetchAll(PDO::FETCH_ASSOC),
+            'pagination' => [
+                'current' => $page,
+                'pages'   => ceil($total / $limit)
+            ]
+        ];
+    }
+
 }

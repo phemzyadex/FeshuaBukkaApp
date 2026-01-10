@@ -2,6 +2,34 @@
 
 <div class="container mt-4">
     <h3 class="mb-4">Admin Dashboard</h3>
+    <a href="/FastFood_MVC_Phase1_Auth/public/admin/exportOrders"
+        class="btn btn-outline-success mb-3">
+        ⬇ Export Orders (CSV)
+    </a>
+
+    <!-- STATS TODAY-->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card bg-info text-white p-3 shadow">
+                <h6>Today's Orders</h6>
+                <h3><?= $analytics['today_orders'] ?></h3>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card bg-success text-white p-3 shadow">
+                <h6>Today's Sales</h6>
+                <h3>₦<?= number_format($analytics['today_sales'],2) ?></h3>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card bg-warning p-3 shadow">
+                <h6>This Month Sales</h6>
+                <h3>₦<?= number_format($analytics['month_sales'],2) ?></h3>
+            </div>
+        </div>
+    </div>
 
     <!-- STATS -->
     <div class="row mb-4">
@@ -28,7 +56,6 @@
             </div>
         </div>
     </div>
-
     <!-- SEARCH & FILTER -->
     <div class="card shadow mb-3">
         <div class="card-body">
@@ -153,6 +180,38 @@
         <?php endif; ?>
         </tbody>
     </table>
+    <?php if (!empty($pagination)): ?>
+<nav aria-label="Orders pagination">
+    <ul class="pagination justify-content-center mt-4">
+
+        <!-- Previous -->
+        <li class="page-item <?= $pagination['current'] <= 1 ? 'disabled' : '' ?>">
+            <a class="page-link"
+               href="?page=<?= $pagination['current'] - 1 ?>">
+               Previous
+            </a>
+        </li>
+
+        <!-- Pages -->
+        <?php for ($i = 1; $i <= $pagination['pages']; $i++): ?>
+            <li class="page-item <?= $i == $pagination['current'] ? 'active' : '' ?>">
+                <a class="page-link" href="?page=<?= $i ?>">
+                    <?= $i ?>
+                </a>
+            </li>
+        <?php endfor; ?>
+
+        <!-- Next -->
+        <li class="page-item <?= $pagination['current'] >= $pagination['pages'] ? 'disabled' : '' ?>">
+            <a class="page-link"
+               href="?page=<?= $pagination['current'] + 1 ?>">
+               Next
+            </a>
+        </li>
+
+    </ul>
+</nav>
+<?php endif; ?>
 </div>
 
 <?php require __DIR__ . '/../partials/footer.php'; ?>

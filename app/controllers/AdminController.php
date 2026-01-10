@@ -17,6 +17,7 @@ class AdminController extends Controller {
         $orderModel = $this->model('Order');
         $userModel  = $this->model('User');
 
+
         // ✅ Get all orders
         $orders = $orderModel->all();
 
@@ -32,7 +33,22 @@ class AdminController extends Controller {
             'users'  => $userModel->count()
         ];
 
-        $this->view('admin/dashboard', compact('orders', 'stats'));
+         $analytics = [
+            'today_orders' => $orderModel->countToday(),
+            'today_sales'  => $orderModel->sumToday(),
+            'month_sales'  => $orderModel->sumThisMonth()
+        ];
+
+        // PAGINAION
+        $page  = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $limit = 5;
+
+        $result = $orderModel->paginate($page, $limit);
+
+        $orders     = $result['data'];
+        $pagination = $result['pagination'];
+
+        $this->view('admin/dashboard', compact('orders', 'stats', 'analytics', 'pagination'));
     }
 
     // =======================
@@ -51,8 +67,16 @@ class AdminController extends Controller {
     // FOOD MANAGEMENT
     // =======================
     public function foods() {
-        $foods = $this->model('Food')->all();
-        $this->view('admin/foods', compact('foods'));
+        $page  = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        $limit = 5;
+
+        $foodModel = $this->model('Food');
+        $result = $foodModel->paginate($page, $limit);
+
+        $foods      = $result['data'];
+        $pagination = $result['pagination'];
+
+        $this->view('admin/foods', compact('foods', 'pagination'));
     }
 
     public function addFood() {
@@ -93,4 +117,31 @@ class AdminController extends Controller {
         header('Location: /FastFood_MVC_Phase1_Auth/public/admin/dashboard');
         exit;
     }
+
+    public function exportOrders()
+    {
+        $orderModel = $this->model('Order');
+        $orders = $orderModel->allWithUsers();
+
+        header('Content-Type: text/csv');
+        header('Content-Disposition: attachment; filename="orders.csv"');
+
+        $out = fopen('php://output', 'w');
+        fputcsv($out, ['Order ID','Customer','Total','Status','Date']);
+
+        foreach ($orders as $o) {
+            fputcsv($out, [
+                $o['id'],
+                $o['name'],
+                $o['total'],
+                $o['status'],
+                $o['created_at']
+            ]);
+        }
+
+        fclose($out);
+        exit;
+    }
+
+
 }

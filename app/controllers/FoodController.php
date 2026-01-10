@@ -96,6 +96,9 @@ class FoodController extends Controller {
 
   // EDIT FOOD
     public function edit($id) {
+
+        $foodModel = $this->model('Food');
+        
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $name  = isset($_POST['name']) ? trim($_POST['name']) : '';
             $price = isset($_POST['price']) ? trim($_POST['price']) : '';
@@ -134,6 +137,14 @@ class FoodController extends Controller {
             header('Location: /FastFood_MVC_Phase1_Auth/public/admin/foods');
             exit;
         }
+        // ---------- GET: SHOW FORM ----------
+        $food = $foodModel->findById($id);
+
+        if (!$food) {
+            die('Food not found');
+        }
+
+        $this->view('admin/edit_food', compact('food'));
     }
     public function delete($id) {
         $this->model('Food')->delete($id);
