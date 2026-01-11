@@ -60,79 +60,67 @@
     </div>
 
     <!-- FOOD LIST -->
-    <div class="card shadow">
-        <div class="card-body">
-            <h5 class="mb-3">All Foods</h5>
+<div class="card shadow">
+    <div class="card-body">
+        <h5 class="mb-3">All Foods</h5>
 
-            <table class="table table-bordered table-hover align-middle">
-                <thead class="table-dark">
-                    <tr>
-                        <th>#</th>
-                        <th>Image</th>
-                        <th>Name</th>
-                        <th>Price</th>
-                        <th width="160">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-
-                <?php if (!empty($foods)): ?>
-                    <?php foreach ($foods as $i => $food): ?>
+        <?php if (!empty($categories)): ?>
+            <?php foreach ($categories as $cat): ?>
+                <h6 class="mt-4"><?= htmlspecialchars($cat['name']) ?></h6>
+                <table class="table table-bordered table-hover align-middle mb-0">
+                    <thead class="table-secondary">
                         <tr>
-                            <td><?= $i + 1 ?></td>
-                            <td>
-                                <img src="/FastFood_MVC_Phase1_Auth/public/uploads/<?= htmlspecialchars($food['image']) ?>"
-                                     width="50">
-                            </td>
-                            <td><?= htmlspecialchars($food['name']) ?></td>
-                            <td>₦<?= number_format($food['price'], 2) ?></td>
-                            <td>
-                                <a href="/FastFood_MVC_Phase1_Auth/public/food/edit/<?= $food['id'] ?>"
-                                   class="btn btn-sm btn-primary">
-                                   Edit
-                                </a>
-                                <a href="/FastFood_MVC_Phase1_Auth/public/food/delete/<?= $food['id'] ?>"
-                                   onclick="return confirm('Delete this food?')"
-                                   class="btn btn-sm btn-danger">
-                                   Delete
-                                </a>
-                            </td>
+                            <th>#</th>
+                            <th>Image</th>
+                            <th>Name</th>
+                            <th>Price</th>
+                            <th width="160">Actions</th>
                         </tr>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <tr>
-                        <td colspan="5" class="text-center">
-                            No food added yet.
-                        </td>
-                    </tr>
-                <?php endif; ?>
-
-                </tbody>
-            </table>
-
-            <!-- PAGINATION -->
-            <?php if (!empty($pagination)): ?>
-                <nav>
-                    <ul class="pagination justify-content-center mt-4">
-                        <li class="page-item <?= $pagination['current'] <= 1 ? 'disabled' : '' ?>">
-                            <a class="page-link" href="?page=<?= $pagination['current'] - 1 ?>">Previous</a>
-                        </li>
-
-                        <?php for ($i = 1; $i <= $pagination['pages']; $i++): ?>
-                            <li class="page-item <?= $i === $pagination['current'] ? 'active' : '' ?>">
-                                <a class="page-link" href="?page=<?= $i ?>"><?= $i ?></a>
-                            </li>
-                        <?php endfor; ?>
-
-                        <li class="page-item <?= $pagination['current'] >= $pagination['pages'] ? 'disabled' : '' ?>">
-                            <a class="page-link" href="?page=<?= $pagination['current'] + 1 ?>">Next</a>
-                        </li>
-                    </ul>
-                </nav>
-            <?php endif; ?>
-
-        </div>
+                    </thead>
+                    <tbody>
+                        <?php
+                        // Get foods for this category
+                        $catFoods = array_filter($foods, function($f) use ($cat) {
+                            return $f['category_id'] == $cat['id'];
+                        });
+                        ?>
+                        <?php if (!empty($catFoods)): ?>
+                            <?php foreach ($catFoods as $i => $food): ?>
+                                <tr>
+                                    <td><?= $i + 1 ?></td>
+                                    <td>
+                                        <img src="/FastFood_MVC_Phase1_Auth/public/uploads/<?= htmlspecialchars($food['image']) ?>"
+                                             width="50">
+                                    </td>
+                                    <td><?= htmlspecialchars($food['name']) ?></td>
+                                    <td>₦<?= number_format($food['price'], 2) ?></td>
+                                    <td>
+                                        <a href="/FastFood_MVC_Phase1_Auth/public/food/edit/<?= $food['id'] ?>"
+                                           class="btn btn-sm btn-primary">
+                                           Edit
+                                        </a>
+                                        <a href="/FastFood_MVC_Phase1_Auth/public/food/delete/<?= $food['id'] ?>"
+                                           onclick="return confirm('Delete this food?')"
+                                           class="btn btn-sm btn-danger">
+                                           Delete
+                                        </a>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr>
+                                <td colspan="5" class="text-center">No food in this category.</td>
+                            </tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <p class="text-center">No categories available.</p>
+        <?php endif; ?>
     </div>
+</div>
+
 
 </div>
 

@@ -17,41 +17,91 @@ class AdminController extends Controller {
         $orderModel = $this->model('Order');
         $userModel  = $this->model('User');
 
-
-        // ✅ Get all orders
-        $orders = $orderModel->all();
-
-        // ✅ Attach items to each order
-        foreach ($orders as &$order) {
-            $order['items'] = $orderModel->items($order['id']);
-        }
-
-        // ✅ Dashboard stats
-        $stats = [
-            'orders' => count($orders),
-            'sales'  => $orderModel->stats()['sales'],
-            'users'  => $userModel->count()
-        ];
-
-         $analytics = [
-            'today_orders' => $orderModel->countToday(),
-            'today_sales'  => $orderModel->sumToday(),
-            'month_sales'  => $orderModel->sumThisMonth()
-        ];
-
-        // PAGINAION
+        // PAGINATION
         $page  = isset($_GET['page']) ? (int)$_GET['page'] : 1;
         $limit = 5;
-
         $result = $orderModel->paginate($page, $limit);
 
         $orders     = $result['data'];
         $pagination = $result['pagination'];
 
+        // Attach items to paginated orders
+        foreach ($orders as &$order) {
+            $order['items'] = $orderModel->items($order['id']);
+        }
+
+        // Dashboard stats
+        $orderStats = $orderModel->stats();
+        $stats = [
+            'orders' => $orderModel->countAll(), // total orders
+            'sales'  => isset($orderStats['sales']) ? $orderStats['sales'] : 0,
+            'users'  => $userModel->count()
+        ];
+
+        $analytics = [
+            'today_orders' => $orderModel->countToday(),
+            'today_sales'  => $orderModel->sumToday(),
+            'month_sales'  => $orderModel->sumThisMonth()
+        ];
+
         $this->view('admin/dashboard', compact('orders', 'stats', 'analytics', 'pagination'));
     }
 
-    // =======================
+    // public function dashboard() {
+    //     $orderModel = $this->model('Order');
+    //     $userModel  = $this->model('User');
+
+    //     // -----------------------------
+    //     // PAGINATION
+    //     // -----------------------------
+    //     $page  = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+    //     $limit = 5;
+
+    //     // Default date filter: today
+    //     $filterDate = isset($_GET['filterDate']) && $_GET['filterDate'] !== ''
+    //                 ? $_GET['filterDate']
+    //                 : date('Y-m-d');
+
+    //     // Fetch paginated orders with optional date filter
+    //     //$result = $orderModel->paginate($page, $limit, $filterDate);
+    //     $result = $orderModel->paginate($page, $limit);
+    //     $orders = $result['data'];
+    //     $pagination = $result['pagination'];
+
+    //     // -----------------------------
+    //     // ATTACH ITEMS TO ORDERS
+    //     // -----------------------------
+    //     foreach ($orders as &$order) {
+    //         $order['items'] = $orderModel->items($order['id']);
+    //         // Ensure 'name' key exists
+    //         $order['name'] = isset($order['name']) ? $order['name'] : 'Unknown';
+    //     }
+
+    //     // -----------------------------
+    //     // DASHBOARD STATS
+    //     // -----------------------------
+    //     $orderStats = $orderModel->stats();
+    //     $stats = [
+    //         'orders' => $orderModel->countAll(), // total orders
+    //         'sales'  => isset($orderStats['sales']) ? $orderStats['sales'] : 0,
+    //         'users'  => $userModel->count()
+    //     ];
+
+    //     $analytics = [
+    //         'today_orders' => $orderModel->countToday(),
+    //             'today_sales'  => $orderModel->sumToday(),
+    //             'month_sales'  => $orderModel->sumThisMonth()
+    //         ];
+
+    //         // -----------------------------
+    //         // PASS TO VIEW
+    //         // -----------------------------
+    //         $this->view('admin/dashboard', compact('orders', 'stats', 'analytics', 'pagination', 'filterDate'));
+    //     }
+
+
+
+    // // =======================
     // UPDATE ORDER STATUS
     // =======================
     public function updateStatus($orderId) {

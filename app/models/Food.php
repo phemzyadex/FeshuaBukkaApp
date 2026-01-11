@@ -18,12 +18,6 @@ class Food {
                         ->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function allCat() {
-    $stmt = $this->db->query("SELECT * from categories ORDER BY id DESC");
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-
     // Check duplicate by name
     public function existsByName($name) {
         $stmt = $this->db->prepare("SELECT * FROM foods WHERE name = ?");
@@ -58,20 +52,11 @@ class Food {
     }
 
     // Update food
-    public function update($id, $name, $price, $file = null) {
-        $sql = "UPDATE foods SET name=?, price=?";
-        $params = [$name, $price];
+    public function update($id, $name, $price, $category_id, $image = null) {
+        $sql = "UPDATE foods SET name=?, price=?, category_id=?";
+        $params = [$name, $price, $category_id];
 
-        if ($file && $file['error'] === UPLOAD_ERR_OK) {
-            $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
-            $image = uniqid('food_', true) . '.' . $ext;
-
-            $uploadDir = realpath(__DIR__ . '/../../public/uploads');
-            if ($uploadDir === false) mkdir(__DIR__ . '/../../public/uploads', 0755, true);
-            $uploadPath = $uploadDir . DIRECTORY_SEPARATOR . $image;
-
-            move_uploaded_file($file['tmp_name'], $uploadPath);
-
+        if ($image) {
             $sql .= ", image=?";
             $params[] = $image;
         }
@@ -82,6 +67,13 @@ class Food {
         $stmt = $this->db->prepare($sql);
         $stmt->execute($params);
     }
+
+     public function find($id) {
+        $stmt = $this->db->prepare("SELECT * FROM foods WHERE id = :id LIMIT 1");
+        $stmt->execute(['id' => $id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+
 
     // Delete food
     public function delete($id) {
@@ -121,6 +113,21 @@ class Food {
                 'pages'   => ceil($total / $limit)
             ]
         ];
+    }
+
+    public function allWithCategory()
+    {
+        $sql = "
+            SELECT 
+                f.*, 
+                c.name AS category_name
+            FROM foods f
+            JOIN categories c ON f.category_id = c.id
+            ORDER BY c.name, f.name
+        ";
+
+        $stmt = $this->db->query($sql);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
 

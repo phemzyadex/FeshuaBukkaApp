@@ -64,4 +64,5 @@ class Category {
         $stmt->execute([$name, $id]);
     }
 
+
 }

@@ -185,5 +185,110 @@ class Order {
             ]
         ];
     }
+    // public function paginate($page = 1, $limit = 5, $date = null) {
+    //     $offset = ($page - 1) * $limit;
+    //     $sql = "SELECT * FROM orders WHERE 1";
+
+    //     if ($date) {
+    //         $sql .= " AND DATE(created_at) = :date";
+    //     }
+
+    //     $sql .= " ORDER BY created_at DESC LIMIT :offset, :limit";
+
+    //     $stmt = $this->db->prepare($sql);
+    //     if ($date) {
+    //         $stmt->bindValue(':date', $date);
+    //     }
+    //     $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+    //     $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+    //     $stmt->execute();
+
+    //     $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    //     // Pagination info
+    //     $total = 0;
+    //     if ($date) {
+    //         $stmtTotal = $this->db->prepare("SELECT COUNT(*) as total FROM orders WHERE DATE(created_at) = :date");
+    //         $stmtTotal->bindValue(':date', $date);
+    //         $stmtTotal->execute();
+    //         $row = $stmtTotal->fetch(PDO::FETCH_ASSOC);
+    //         if ($row && isset($row['total'])) {
+    //             $total = (int) $row['total'];
+    //         }
+    //     } else {
+    //         $row = $this->db->query("SELECT COUNT(*) as total FROM orders")->fetch(PDO::FETCH_ASSOC);
+    //         if ($row && isset($row['total'])) {
+    //             $total = (int) $row['total'];
+    //         }
+    //     }
+
+    //     $pages = ceil($total / $limit);
+
+    //     return [
+    //         'data' => $orders,
+    //         'pagination' => [
+    //             'current' => $page,
+    //             'pages'   => $pages
+    //         ]
+    //     ];
+    // }
+
+    // public function paginate($page = 1, $limit = 5) {
+    //     $offset = ($page - 1) * $limit;
+
+    //     // Base query: join users to get customer name
+    //     $sql = "SELECT o.*, u.name 
+    //             FROM orders o
+    //             JOIN users u ON u.id = o.user_id
+    //             WHERE 1";
+
+    //     // // Apply date filter if provided
+    //     // if ($date) {
+    //     //     $sql .= " AND DATE(o.created_at) = :date";
+    //     // }
+
+    //     // Add pagination
+    //     $sql .= " ORDER BY o.created_at DESC LIMIT :limit OFFSET :offset";
+
+    //     // Prepare and bind
+    //     $stmt = $this->db->prepare($sql);
+    //     // if ($date) {
+    //     //     $stmt->bindValue(':date', $date);
+    //     // }
+    //     $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+    //     $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+
+    //     $stmt->execute();
+    //     $orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    //     // ------------------------
+    //     // Get total count for pagination
+    //     // ------------------------
+    //     // if ($date) {
+    //     //     $stmtTotal = $this->db->prepare("SELECT COUNT(*) as total FROM orders WHERE DATE(created_at) = :date");
+    //     //     $stmtTotal->bindValue(':date', $date);
+    //     //     $stmtTotal->execute();
+    //     //     $total = (int) $stmtTotal->fetchColumn();
+    //     // } else {
+    //         $total = (int) $this->db->query("SELECT COUNT(*) as total FROM orders")->fetchColumn();
+    //     // }
+
+    //     $pages = ceil($total / $limit);
+
+    //     return [
+    //         'data' => $orders,
+    //         'pagination' => [
+    //             'current' => $page,
+    //             'pages'   => $pages,
+    //             'total'   => $total
+    //         ]
+    //     ];
+    // }
+
+    public function countAll() {
+        $stmt = $this->db->query("SELECT COUNT(*) as total FROM orders");
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return (int)$row['total'];
+    }
 
 }

@@ -57,17 +57,17 @@ class CategoryController extends Controller {
     }
 
     public function updateCategory($id) {
-    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-        $name = trim($_POST['name']);
-        $categoryModel = $this->model('Category');
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $name = trim($_POST['name']);
+            $categoryModel = $this->model('Category');
 
-        if ($categoryModel->existsByName($name, $id)) {
-            $_SESSION['category_error'] = "Category already exists!";
-        } else {
-            $categoryModel->update($id, $name);
-            $_SESSION['category_success'] = "Category updated successfully!";
+            if ($categoryModel->existsByName($name, $id)) {
+                $_SESSION['category_error'] = "Category already exists!";
+            } else {
+                $categoryModel->update($id, $name);
+                $_SESSION['category_success'] = "Category updated successfully!";
+            }
         }
-    }
         header('Location: /FastFood_MVC_Phase1_Auth/public/admin/edit_category/' . $id);
         exit;
     }
