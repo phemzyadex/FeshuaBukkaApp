@@ -10,19 +10,12 @@ return [
 
 
 
-// // production credentials
-// return [
-//     'host' => 'localhost:3306',
-//     'db'   => 'feshuabu_food_db',
-//     'user' => 'root',
-//     'pass' => ''
-// ];
 
 
 // // production credentials
 // return [
 //     'host' => 'localhost:3306',
 //     'db'   => 'feshuabu_bukka',
-//     'user' => 'root',
-//     'pass' => ''
+//     'user' => 'feshuabu',
+//     'pass' => 'hml7#59KE!P6Qe'
 // ];
