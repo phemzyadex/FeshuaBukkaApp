@@ -291,4 +291,32 @@ class Order {
         return (int)$row['total'];
     }
 
+
+    public function getOrdersByDateRange($start, $end)
+    {
+        $this->db->query("
+            SELECT COUNT(*) as total 
+            FROM orders 
+            WHERE DATE(created_at) BETWEEN :start AND :end
+        ");
+        $this->db->bind(':start', $start);
+        $this->db->bind(':end', $end);
+
+        $row = $this->db->single();
+        return $row['total'] ?? 0;
+    }
+
+    public function getTotalOrders()
+    {
+        $stmt = $this->db->query("SELECT COUNT(*) as total FROM orders");
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row['total'] ?? 0;
+    }
+
+    public function getOrderById($id)
+    {
+        $stmt = $this->db->prepare("SELECT * FROM orders WHERE id = ?");
+        $stmt->execute([$id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC); // returns false if not found
+    }
 }

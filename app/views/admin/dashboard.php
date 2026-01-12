@@ -53,6 +53,48 @@
             </div>
         </div>
     </div>
+
+    <!-- <div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card text-white bg-success mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Total Revenue</h5>
+                <p class="card-text">₦<?= number_format($totalRevenue, 2) ?></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="card text-white bg-primary mb-3">
+            <div class="card-body">
+                <h5 class="card-title">Total Orders</h5>
+                <p class="card-text"><?= $totalOrders ?></p>
+            </div>
+        </div>
+    </div> -->
+</div>
+
+<!-- <h3>Recent Payments</h3>
+<table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Reference</th>
+            <th>User ID</th>
+            <th>Amount</th>
+            <th>Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach($recentPayments as $p): ?>
+        <tr>
+            <td><?= htmlspecialchars($p['reference']) ?></td>
+            <td><?= $p['user_id'] ?></td>
+            <td>₦<?= number_format($p['amount'], 2) ?></td>
+            <td><?= $p['created_at'] ?></td>
+        </tr>
+        <?php endforeach; ?>
+    </tbody>
+</table> -->
 <!-- FILTER FORM -->
     <form method="get" class="row g-2 mb-4 align-items-end">
         <div class="col-md-3">

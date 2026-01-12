@@ -38,15 +38,22 @@
     <h4 class="text-end">
         Total: <strong>₦<?= number_format($total, 2) ?></strong>
     </h4>
-    <div class="container mt-4">
-        <div class="row">
-            <div class="col-md-9">
-                <a href="/FastFood_MVC_Phase1_Auth/public/food/menu"
-                    class="btn btn-info">
-                    Continue Shopping
-                </a>
-            </div>
-            <div class="col-md-3">
+    <div class="row mt-4">
+        <div class="col-md-9">
+            <a href="/FastFood_MVC_Phase1_Auth/public/food/menu"
+            class="btn btn-info">
+                Continue Shopping
+            </a>
+        </div>
+
+        <div class="col-md-3 text-end">
+            <button class="btn btn-success btn-lg"
+                    onclick="payWithPaystack()">
+                Pay ₦<?= number_format($total, 2) ?>
+            </button>
+        </div>
+
+         <div class="col-md-3">
                 <form method="post"
                     action="/FastFood_MVC_Phase1_Auth/public/checkout/placeOrder"
                     class="text-end mt-3">
@@ -55,8 +62,33 @@
                     </button>
                 </form>
             </div>
-        </div>
     </div>
 </div>
+
+<script src="https://js.paystack.co/v1/inline.js"></script>
+
+<script>
+function payWithPaystack() {
+    let handler = PaystackPop.setup({
+        key: 'pk_test_2e36e7a8b8d9c36735a9cfea786f7ce202891a40', // YOUR PUBLIC KEY
+        email: 'ultraprocess.solutions@email.com',   // replace with logged-in user email
+        amount: <?= intval($total * 100) ?>, // kobo
+        currency: "NGN",
+        ref: 'FF_' + Math.floor((Math.random() * 1000000000) + 1),
+
+        callback: function(response) {
+            window.location.href =
+                "/FastFood_MVC_Phase1_Auth/public/checkout/verify/" 
+                + response.reference;
+        },
+
+        onClose: function() {
+            alert('Payment cancelled');
+        }
+    });
+
+    handler.openIframe();
+}
+</script>
 
 <?php require __DIR__ . '/../partials/footer.php'; ?>
